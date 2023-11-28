@@ -17,6 +17,7 @@ class HomePage extends StatelessWidget {
           }else if (snapshot.hasError){
              return Text('Error: ${snapshot.error}');
           }else{
+            //Ejemplo de commit
             List<Pokemon> pokemons = snapshot.data!.results;
           return ListView.builder(
             itemCount: pokemons.length,
