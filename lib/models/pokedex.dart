@@ -39,19 +39,23 @@ class Pokedex {
 class Pokemon {
     String name;
     String url;
+    String? image;
 
     Pokemon({
         required this.name,
         required this.url,
+        this.image
     });
 
     factory Pokemon.fromJson(Map<String, dynamic> json) => Pokemon(
         name: json["name"],
         url: json["url"],
+        image: json['image']
     );
 
     Map<String, dynamic> toJson() => {
         "name": name,
         "url": url,
+        "image": image
     };
 }

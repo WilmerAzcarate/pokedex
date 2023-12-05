@@ -1,16 +1,40 @@
-import 'dart:convert';
-
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:pokedex_movil/env/env.dart';
 import 'package:pokedex_movil/models/pokedex.dart';
+import 'package:pokedex_movil/models/pokemon_details.dart';
 
 class PokedexService {
+  final _dio = Dio();
 
-  Future<Pokedex> getPokedext() async {
-    String pokedexUrl = '$url/pokemon/?limit=20&offset=20'; //limit (limite de la cantidad de registros), offset (desde que indice de la lista traer los registros)
-    final response = await http.get(Uri.parse(pokedexUrl));
-    Pokedex pokedex = Pokedex.fromJson(jsonDecode(response.body));
-    return pokedex;
+  Future<List<Pokemon>> getPokedext() async {
+    try {
+      String pokedexUrl = '$url/pokemon/?limit=20&offset=20';
+      final Response response = await _dio.get(pokedexUrl);
+      Pokedex pokedex = Pokedex.fromJson(response.data);
+      return await parseResponse(pokedex.results);
+    } catch (e) {
+      rethrow;
+    }
   }
 
+  Future<String> getPokemonImage(String url) async {
+    try {
+      final Response response = await _dio.get(url);
+      final PokemonDetails pokemonDetails = PokemonDetails.fromJson(response.data);
+      final String pokemonImage = pokemonDetails.sprites.other!.home.frontDefault;
+      return pokemonImage;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Pokemon>> parseResponse(List<Pokemon> pokemons) async {
+    List<Pokemon> parsedPokemons = [];
+    for (Pokemon pokemon in pokemons) {
+      final String pokemonImage = await getPokemonImage(pokemon.url);
+      pokemon.image = pokemonImage;
+      parsedPokemons.add(pokemon);
+    }
+    return parsedPokemons;
+  }
 }
